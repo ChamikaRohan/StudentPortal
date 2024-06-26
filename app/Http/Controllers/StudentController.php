@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use Dotenv\Exception\ValidationException;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -13,7 +14,7 @@ class StudentController extends Controller
     public function index()
     {
         $students = Student::all();
-        return response()->json($students);
+        return response()->json($students, 200);
     }
 
     /**
@@ -21,7 +22,7 @@ class StudentController extends Controller
      */
     public function create()
     {
-        //
+        return response()->json("works", 201);
     }
 
     /**
@@ -29,7 +30,28 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try
+        {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'age' => 'required|numeric',
+                'gender' => 'required|string|max:255',
+                'email' => 'required|string|email|max:255|unique:students,email',
+                'pnumber' => 'required|string|max:255',
+                'address' => 'nullable|string|max:255',
+            ]);
+    
+            $student = Student::create($validatedData);
+    
+            return response()->json([
+                'message' => 'Student created successfully!',
+                'student' => $student,
+            ], 201);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json(['message' => 'Student creation unsuccessfull!', "error" => $e->getMessage()], 500);
+        }
     }
 
     /**

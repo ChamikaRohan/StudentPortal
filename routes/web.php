@@ -8,3 +8,4 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::get('/get-students', [StudentController::class, 'index']);
+Route::post('/create-student', [StudentController::class, 'store']);
