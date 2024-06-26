@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Dotenv\Exception\ValidationException;
+use Exception;
 use Illuminate\Http\Request;
 
 class StudentController extends Controller
@@ -75,7 +76,32 @@ class StudentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try
+        {
+            $validatedData = $request->validate([
+                'name' => 'sometimes|required|string|max:255',
+                'age' => 'sometimes|required|numeric',
+                'gender' => 'sometimes|required|string|max:255',
+                'email' => 'sometimes|required|string|email|max:255|unique:students,email',
+                'pnumber' => 'sometimes|required|string|max:255',
+                'address' => 'sometimes|nullable|string|max:255',
+            ]);
+    
+            $student = Student::findOrFail($id);
+            $student->update($validatedData);
+            
+            return response()->json([
+                'message' => 'Student updated successfully!',
+                'student' => $student,
+            ], 200);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'message' => "Student update unsuccessfull!",
+                "error" => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
